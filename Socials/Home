@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tellurion Socials - Connect & Innovate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #4a90e2, #9013fe);
+            color: #fff;
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            object-fit: cover;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 15px 0;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        p.lead {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto 25px;
+            color: #ffffffcc;
+        }
+        .intro {
+            text-align: center;
+            padding: 40px 20px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .intro p {
+            font-size: 16px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        .intro a {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #4a90e2;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .intro a:hover {
+            background: #357abd;
+        }
+        .app-sections {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .app-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .app-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        .app-section img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: opacity 0.3s;
+        }
+        .app-section:hover img {
+            opacity: 1;
+        }
+        .app-section h2 {
+            font-size: 22px;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .app-section p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .app-section a {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #4a90e2;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .app-section a:hover {
+            background: #357abd;
+        }
+        .navbar {
+            background: #2c3e50;
+            padding: 5px 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #4a90e2;
+        }
+        .footer {
+            background: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        .footer p {
+            margin-bottom: 10px;
+        }
+        .footer a {
+            color: #4a90e2;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        .footer a:hover {
+            color: #357abd;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 32px; }
+            p.lead { font-size: 16px; }
+            .navbar ul { gap: 10px; }
+            .navbar a { font-size: 12px; }
+            .app-section { padding: 20px; }
+            .intro { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="#home" id="home-link">Home</a></li>
+            <li><a href="#apps">Apps</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <header class="header">
+        <div class="header-content">
+            <img src="https://thumbs2.imgbox.com/f6/41/349HpV98_t.png" alt="Telluriom Logo" class="logo">
+            <h1>Tellurion Socials</h1>
+            <p class="lead">Explore our cutting-edge apps for connection and innovation.</p>
+        </div>
+    </header>
+    <section class="intro" id="home">
+        <p>Welcome to Tellurion Socials! Dive into a world of innovative apps designed to enhance your digital experience. Get started today!</p>
+        <a href="#apps">Discover Apps</a>
+    </section>
+    <div class="app-sections" id="apps">
+        <div class="app-section">
+            <img src="https://thumbs2.imgbox.com/92/8b/zx4cZHTy_t.png" alt="AI App Image">
+            <h2>AI App</h2>
+            <p>Smart assistance for your daily tasks and queries with AI technology.</p>
+            <a href="AI chat bot.html">Try Now</a>
+        </div>
+        <div class="app-section">
+            <img src="https://thumbs2.imgbox.com/92/8b/zx4cZHTy_t.png" alt="Chat App Image">
+            <h2>Chat App</h2>
+            <p>Effortless communication with real-time features.</p>
+            <a href="#">Join Now</a>
+        </div>
+        <!-- Add more app sections as needed -->
+    </div>
+    <footer class="footer" id="contact">
+        <p>© 2025 Tellurion. All rights reserved.</p>
+        <p>Contact us: <a href="mailto:yigam74495@dlbazi.com">support@nexlify.com</a></p>
+        <p>Follow us: 
+            <a href="#">Telegram</a> | 
+            <a href="#">Facebook</a>
+        </p>
+    </footer>
+
+    <script>
+        // Add event listener to the "Home" link to scroll to the top
+        document.getElementById('home-link').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default anchor behavior
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Smooth scrolling
+            });
+        });
+    </script>
+</body>
+</html>
