@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Job Search with Expandable Requirements</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f3f6fa;
+      color: #1d2939;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 0 60px 0;
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .job-logo-link {
+      display: block;
+      margin: 35px auto 0 auto;
+      width: 150px;
+      height: 150px;
+      text-align: center;
+    }
+    .job-logo-link img {
+      width: 150px;
+      height: 150px;
+      border-radius: 20px;
+      object-fit: cover;
+      box-shadow: 0 4px 24px #0001;
+      transition: box-shadow 0.23s;
+      border: none;
+      display: block;
+      margin: 0 auto 0 auto;
+    }
+    .job-logo-link img:active {
+      box-shadow: 0 2px 7px #0002;
+    }
+    h1 {
+      color: #0077b5;
+      font-size: 2.1em;
+      margin: 18px 0 8px 0;
+      text-align: center;
+      font-weight: 700;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin: 0;
+      background: #fff;
+      padding: 18px 14px 12px;
+      border-radius: 13px;
+      box-shadow: 0 2px 12px #0001;
+      box-sizing: border-box;
+      align-items: stretch;
+    }
+    input[type="text"] {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 13px;
+      font-size: 1.09em;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      margin-bottom: 0;
+      box-sizing: border-box;
+      outline: none;
+      transition: border 0.2s;
+      background: #f6fafd;
+    }
+    input[type="text"]:focus {
+      border: 1.5px solid #0077b5;
+    }
+    button[type="submit"] {
+      width: 100%;
+      background: #0077b5;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 1.08em;
+      cursor: pointer;
+      min-width: 92px;
+      transition: background 0.2s;
+      font-weight: 500;
+      margin-top: 6px;
+      box-shadow: 0 1px 7px #0077b510;
+    }
+    button[type="submit"]:hover, button[type="submit"]:focus {
+      background: #005983;
+    }
+    #results { margin: 8px 3px 0 3px; }
+    .job-card { background: #fff; border-radius: 15px; box-shadow: 0 3px 17px #0002; margin-bottom: 18px; padding: 19px 14px 17px 14px; display: flex; flex-direction: column; gap: 8px; position: relative; transition: box-shadow 0.15s; min-height: 140px; }
+    .job-header { display: flex; align-items: center; gap: 11px; margin-bottom: 3px; }
+    .company-logo {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: #e9ecf2;
+      border: 1px solid #e4e4e4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1.15em;
+      color: #888;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .company-logo img, .company-logo svg {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: block;
+      background: transparent;
+    }
+    .company-logo.initials {
+      font-weight: 600;
+      font-size: 1.1em;
+      color: #555;
+      background: #f5f7fa;
+    }
+    .job-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .job-title { font-weight: 600; font-size: 1.18em; color: #0077b5; text-decoration: none; line-height: 1.19; margin-bottom: 1px; word-break: break-word; }
+    .remote-badge { background: #E3FCEC; color: #13795B; border-radius: 6px; font-size: 0.93em; padding: 2px 8px; font-weight: 500; margin-left: 4px; letter-spacing: .01em; }
+    .meta-row { display: flex; gap: 14px; font-size: 0.98em; color: #666; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+    .location { color: #666; font-weight: 500; }
+    .date-posted { color: #999; font-size: 0.97em; }
+    .company { color: #233; font-size: 1em; font-weight: 500; margin-bottom: 0; }
+    .requirements { color: #222; background: #f6fafd; border-radius: 8px; padding: 8px 10px 7px; margin-top: 0px; font-size: 0.99em; word-break: break-word; border-left: 4px solid #0077b56b; margin-bottom: 5px; position: relative; }
+    .requirements-list { margin: 0; padding-left: 18px; }
+    .requirements-toggle { color: #0077b5; cursor: pointer; font-size: 0.96em; margin-top: 4px; margin-left: -6px; display: inline-block; background: none; border: none; }
+    .requirements-toggle:focus { text-decoration: underline; }
+    .apply-row { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
+    .apply-link { background: #0073c4; color: #fff; padding: 8px 17px; border-radius: 7px; font-size: 1.01em; text-decoration: none; font-weight: 600; transition: background 0.18s; box-shadow: 0 2px 7px #0077b510; }
+    .apply-link:hover, .apply-link:focus { background: #005983; }
+    .copy-link-btn { background: #f7f7f7; color: #0077b5; border: none; border-radius: 6px; padding: 8px 9px; font-size: 1em; cursor: pointer; font-weight: 500; transition: background 0.18s; margin-left: 2px; }
+    .copy-link-btn:active { background: #e3eaf5; }
+    .copied-msg { color: #14ae5c; font-size: 0.97em; margin-left: 7px; }
+    .error, .no-results { color: #d32f2f; margin: 24px 9px 0 9px; font-size: 1.16em; text-align: center; }
+    .loader { margin: 32px auto 24px auto; border: 5px solid #e2e8ef; border-radius: 50%; border-top: 5px solid #0077b5; width: 40px; height: 40px; animation: spin 1.2s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .load-more-btn { display: block; margin: 0 auto 18px auto; background: #e9f5fc; color: #0077b5; border: none; border-radius: 6px; padding: 10px 22px; font-size: 1.05em; font-weight: 600; cursor: pointer; transition: background 0.2s; box-shadow: 0 1px 6px #0077b504; }
+    .load-more-btn:hover { background: #d6eefd; }
+    @media (max-width: 700px) {
+      .container { padding: 0 2vw 60px 2vw; }
+      h1 { font-size: 1.5em; }
+      .job-card { padding: 13px 6px 12px 9px; }
+      .company-logo { width: 33px; height: 33px; font-size: 0.97em;}
+      input[type="text"], button { font-size: 1em; }
+      .apply-link, .copy-link-btn { font-size: 0.97em; padding: 8px 10px;}
+      .job-logo-link, .job-logo-link img { width: 110px; height: 110px; }
+    }
+    @media (max-width: 420px) {
+      .job-header { gap: 6px; }
+      .job-title { font-size: 1em; }
+    }
+    footer {
+      background: #18202b;
+      color: #e6eaf3;
+      text-align: center;
+      padding: 22px 10px 16px 10px;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+      box-shadow: 0 -2px 12px #0001;
+      border-top: 1.5px solid #26344a;
+      margin-top: auto;
+      width: 100%;
+    }
+    footer a {
+      color: #7ed9fc;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .footer-socials {
+      margin-top: 10px;
+    }
+    .footer-socials a {
+      display: inline-block;
+      margin: 0 6px;
+      vertical-align: middle;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
+    .footer-socials a:hover {
+      opacity: 1;
+    }
+    .footer-socials svg {
+      width: 22px;
+      height: 22px;
+      fill: #7ed9fc;
+      vertical-align: middle;
+      transition: fill 0.2s;
+    }
+    .footer-socials a:hover svg {
+      fill: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo above heading -->
+    <a class="job-logo-link" href="https://your-job-app-link.com" target="_blank" title="Visit Homepage">
+      <img src="https://thumbs2.imgbox.com/f6/41/349HpV98_t.png" alt="Job App Logo">
+    </a>
+    <h1>Tellurion job finder</h1>
+    <form id="jobSearchForm" autocomplete="off">
+      <input type="text" id="keyword" placeholder="Role (e.g. Doctor)" required>
+      <input type="text" id="location" placeholder="Location (e.g. South Africa)" required>
+      <button type="submit" id="searchBtn">Search</button>
+    </form>
+    <div id="results"></div>
+    <button id="loadMoreBtn" class="load-more-btn" style="display:none;">Load more jobs</button>
+  </div>
+  <footer>
+    Contact: <a href="mailto:yigam74495@dlbazi.com">Tellurion@co.za</a> &copy; 2025 Tellurion
+    <div class="footer-socials">
+      <a href="https://github.com/codewiz235" target="_blank" aria-label="GitHub">
+        <svg viewBox="0 0 24 24"><path d="M12 0.297c-6.626 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.387 0.6 0.113 0.82-0.26 0.82-0.577 0-0.285-0.011-1.04-0.017-2.042-3.338 0.726-4.042-1.613-4.042-1.613-0.546-1.387-1.333-1.756-1.333-1.756-1.089-0.745 0.084-0.729 0.084-0.729 1.205 0.084 1.84 1.237 1.84 1.237 1.07 1.834 2.809 1.304 3.495 0.997 0.108-0.775 0.418-1.304 0.76-1.604-2.665-0.304-5.466-1.332-5.466-5.932 0-1.311 0.469-2.381 1.236-3.221-0.124-0.303-0.536-1.527 0.117-3.176 0 0 1.008-0.323 3.301 1.23 0.957-0.266 1.984-0.399 3.003-0.404 1.019 0.005 2.047 0.138 3.006 0.404 2.289-1.554 3.295-1.23 3.295-1.23 0.655 1.649 0.243 2.873 0.119 3.176 0.77 0.84 1.235 1.91 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921 0.43 0.372 0.814 1.104 0.814 2.225 0 1.604-0.015 2.896-0.015 3.289 0 0.32 0.216 0.694 0.825 0.576 4.765-1.588 8.2-6.084 8.2-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+      </a>
+      <a href="mailto:yigam74495@dlbazi.com" aria-label="Email">
+        <svg viewBox="0 0 512 512"><path d="M502.3 190.8c3.9-3.1 9.7-0.2 9.7 4.7v204.8c0 26.5-21.5 48-48 48h-416c-26.5 0-48-21.5-48-48v-204.8c0-4.9 5.8-7.8 9.7-4.7l214.8 170.5c15.9 12.6 38.8 12.6 54.6 0l214.8-170.5zm-246.4 129.6l-233.8-185.7c-3.3-2.6-3.9-7.6-1.3-10.9l21.4-26.7c2.6-3.3 7.6-3.9 10.9-1.3l234.7 186.4 234.7-186.4c3.3-2.6 8.3-2 10.9 1.3l21.4 26.7c2.6 3.3 2 8.3-1.3 10.9l-233.8 185.7z"></path></svg>
+      </a>
+    </div>
+  </footer>
+  <script>
+    const apiKey = "5b3f8d9394msh22fed8e173104eep1b0509jsn0e78aeb0be40";
+    const apiHost = "jsearch.p.rapidapi.com";
+    let currentKeyword = '';
+    let currentLocation = '';
+    let currentPage = 1;
+    let totalPages = 1;
+    let lastResults = [];
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      const now = new Date();
+      const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+      if (diff === 0) return 'Today';
+      if (diff === 1) return 'Yesterday';
+      if (diff < 8) return `${diff} days ago`;
+      return d.toLocaleDateString();
+    }
+
+    // Extracts requirements as an array of strings (lines/bullets)
+    function extractRequirementsList(job) {
+      let reqs = [];
+      if (job.job_highlights) {
+        if (Array.isArray(job.job_highlights.requirements) && job.job_highlights.requirements.length > 0) {
+          reqs = job.job_highlights.requirements.slice();
+        } else if (Array.isArray(job.job_highlights.Qualifications) && job.job_highlights.Qualifications.length > 0) {
+          reqs = job.job_highlights.Qualifications.slice();
+        }
+      }
+      if (reqs.length === 0 && job.job_description) {
+        const desc = job.job_description;
+        const lines = desc.split("\n");
+        const headerIdx = lines.findIndex(l => /requirement|qualification/i.test(l));
+        if (headerIdx >= 0) {
+          for (let i = headerIdx + 1; i < lines.length; ++i) {
+            const l = lines[i].trim();
+            if (l === "" || /^[A-Z][a-z ]{2,}:$/.test(l)) break;
+            reqs.push(l);
+            if (reqs.length >= 10) break;
+          }
+        }
+      }
+      if (reqs.length === 0 && job.job_description) {
+        const desc = job.job_description;
+        reqs = desc.split("\n").filter(l => /^\s*([-*•]|\d+\.)\s{0,2}/.test(l)).map(l => l.replace(/^[-*•\d.]+\s*/, '').trim());
+      }
+      if (reqs.length === 0 && job.job_description) {
+        reqs = job.job_description.split(/[\n.]/).map(l => l.trim()).filter(Boolean).slice(0, 3);
+      }
+      reqs = reqs.filter(l => !/^(requirements?|qualifications?)[:\s]*$/i.test(l));
+      reqs = reqs.filter(l => l.length > 2 && !/^about|responsib|company/i.test(l));
+      return reqs;
+    }
+
+    function remoteBadge(job) {
+      let remote = (job.job_is_remote || false);
+      if (!remote && job.job_type && /remote|hybrid/i.test(job.job_type)) remote = true;
+      if (!remote && job.job_highlights && job.job_highlights.Benefits && job.job_highlights.Benefits.some(b=>/remote|hybrid/i.test(b))) remote = true;
+      if (remote) return `<span class="remote-badge">Remote</span>`;
+      return "";
+    }
+
+    function companyLogo(job) {
+      if (job.employer_logo) {
+        return `<span class="company-logo"><img src="${job.employer_logo}" alt="Logo"></span>`;
+      } else if (job.employer_name) {
+        const initials = job.employer_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        return `<span class="company-logo initials">${initials}</span>`;
+      }
+      return `<span class="company-logo initials">🏢</span>`;
+    }
+
+    function showLoader() {
+      document.getElementById('results').innerHTML = `<div class="loader"></div>`;
+    }
+
+    function showJobs(jobs, append=false) {
+      jobs.sort((a, b) => {
+        const dA = new Date(a.job_posted_at_datetime_utc || a.job_posted_at_timestamp || 0);
+        const dB = new Date(b.job_posted_at_datetime_utc || b.job_posted_at_timestamp || 0);
+        return dB - dA;
+      });
+      const resultsDiv = document.getElementById('results');
+      if (!append) resultsDiv.innerHTML = '';
+      let html = '';
+      jobs.forEach((job, idx) => {
+        const jobTitle = job.job_title || '';
+        const company = job.employer_name || '';
+        const location = job.job_city ? `${job.job_city}${job.job_state ? ', ' + job.job_state : ''}` : (job.job_location || '');
+        const datePosted = formatDate(job.job_posted_at_datetime_utc || job.job_posted_at_timestamp);
+        const link = job.job_apply_link || job.job_google_link || "#";
+        const requirementsArray = extractRequirementsList(job);
+        const isRemote = remoteBadge(job);
+        const logo = companyLogo(job);
+
+        let requirementsHtml = '';
+        if (requirementsArray && requirementsArray.length > 0) {
+          let collapsed = requirementsArray.slice(0, 1);
+          let expanded = requirementsArray;
+          let needsToggle = expanded.length > 3;
+          let contentId = `req-content-${idx}`;
+          let btnId = `req-btn-${idx}`;
+          requirementsHtml = `
+            <div class="requirements">
+              <b>Requirements:</b>
+              <ul class="requirements-list" id="${contentId}">
+                ${collapsed.map(l => `<li>${l}</li>`).join('')}
+              </ul>
+              ${
+                needsToggle
+                  ? `<button class="requirements-toggle" id="${btnId}" onclick="toggleRequirements('${contentId}', '${btnId}', ${JSON.stringify(expanded).replace(/"/g, '&quot;')}, ${JSON.stringify(collapsed).replace(/"/g, '&quot;')})">Show more</button>`
+                  : ''
+              }
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="job-card">
+            <div class="job-header">
+              ${logo}
+              <div style="flex:1;">
+                <div class="company">${company}</div>
+                <div class="job-title-row">
+                  <a class="job-title" href="${link}" target="_blank" rel="noopener">${jobTitle}</a>
+                  ${isRemote}
+                </div>
+                <div class="meta-row">
+                  ${location ? `<div class="location">📍 ${location}</div>` : ""}
+                  ${datePosted ? `<div class="date-posted">🗓️ ${datePosted}</div>` : ""}
+                </div>
+              </div>
+            </div>
+            ${requirementsHtml}
+            <div class="apply-row">
+              <a class="apply-link" href="${link}" target="_blank" rel="noopener">Apply</a>
+              <button class="copy-link-btn" data-link="${link}" onclick="copyApplyLink(event, '${link}')">Copy link</button>
+              <span class="copied-msg" id="copied-msg-${idx}" style="display:none;">Copied!</span>
+            </div>
+          </div>
+        `;
+      });
+      if (append) resultsDiv.innerHTML += html;
+      else resultsDiv.innerHTML = html;
+    }
+
+    window.toggleRequirements = function(contentId, btnId, expandedArr, collapsedArr) {
+      const ul = document.getElementById(contentId);
+      const btn = document.getElementById(btnId);
+      if (!ul || !btn) return;
+      if (btn.textContent === "Show more") {
+        ul.innerHTML = expandedArr.map(l => `<li>${l}</li>`).join('');
+        btn.textContent = "Show less";
+      } else {
+        ul.innerHTML = collapsedArr.map(l => `<li>${l}</li>`).join('');
+        btn.textContent = "Show more";
+      }
+    };
+
+    window.copyApplyLink = function (e, link) {
+      e.preventDefault();
+      navigator.clipboard.writeText(link).then(() => {
+        const btn = e.target;
+        const msg = btn.parentElement.querySelector('.copied-msg');
+        if (msg) {
+          msg.style.display = 'inline';
+          setTimeout(() => { msg.style.display = 'none'; }, 1600);
+        }
+      });
+    }
+
+    async function fetchJobs(keyword, location, page=1, append=false) {
+      showLoader();
+      try {
+        const url = `https://${apiHost}/search?query=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}&page=${page}&num_pages=1`;
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-host': apiHost,
+            'x-rapidapi-key': apiKey,
+          }
+        });
+        if (!res.ok) throw new Error("API error: " + res.status);
+        const data = await res.json();
+        if (!data.data || data.data.length === 0) {
+          if (!append) document.getElementById('results').innerHTML = "<div class='no-results'>No jobs found.<br>Try different keywords or location.</div>";
+          document.getElementById('loadMoreBtn').style.display = 'none';
+          return;
+        }
+        lastResults = (append ? lastResults.concat(data.data) : data.data);
+        showJobs(lastResults, false);
+        currentPage = page;
+        totalPages = (data.total_pages || 1);
+        document.getElementById('loadMoreBtn').style.display = (currentPage < totalPages) ? 'block' : 'none';
+      } catch (err) {
+        document.getElementById('results').innerHTML = `<div class="error">Error: ${err.message}</div>`;
+        document.getElementById('loadMoreBtn').style.display = 'none';
+      }
+    }
+
+    document.getElementById('jobSearchForm').onsubmit = function(e) {
+      e.preventDefault();
+      currentKeyword = document.getElementById('keyword').value.trim();
+      currentLocation = document.getElementById('location').value.trim();
+      currentPage = 1;
+      lastResults = [];
+      fetchJobs(currentKeyword, currentLocation, currentPage, false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.getElementById('loadMoreBtn').onclick = function() {
+      fetchJobs(currentKeyword, currentLocation, currentPage + 1, true);
+    };
+
+    document.getElementById('keyword').addEventListener('keydown', function(e){
+      if (e.key === "Enter") document.getElementById('searchBtn').focus();
+    });
+  </script>
+</body>
+</html>
