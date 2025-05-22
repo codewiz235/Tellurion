@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>My Song Player</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f4f6f9;
+      color: #222;
+      margin: 0;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      -webkit-text-size-adjust: 100%;
+      box-sizing: border-box;
+    }
+    .container {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 40px; /* Space for player */
+    }
+    h1 {
+      font-size: 1.25rem;
+      text-align: center;
+      margin: 0.5rem 0;
+    }
+    input[type="text"] {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      width: 100%;
+      background: white;
+      box-sizing: border-box;
+    }
+    button {
+      background: #e50914;
+      border: none;
+      padding: 0.75rem;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    #results {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .result-item {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: white;
+      transition: background-color 0.15s;
+      box-shadow: 0 3px 8px rgb(0 0 0 / 0.1);
+    }
+    .result-item:hover {
+      background: #eee;
+    }
+    .thumb {
+      position: relative;
+      width: 120px;
+      height: 67px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 0.75rem;
+    }
+    .thumb-duration {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 0.7rem;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .title {
+      flex-grow: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    #player {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 360px;
+      background: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 -3px 8px rgb(0 0 0 / 0.2);
+      box-sizing: border-box;
+      z-index: 100;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+    }
+    #player-time {
+      font-size: 15px !important;
+      color: #000;
+      margin: 0 0.5rem;
+      white-space: nowrap;
+    }
+    #progress-bar {
+      flex-grow: 1;
+      height: 8px;
+      background: #444;
+      position: relative;
+      margin: 0 0.5rem;
+      cursor: pointer;
+    }
+    #progress {
+      height: 100%;
+      background: #ff4d4d;
+      width: 0;
+      transition: width 0.2s linear;
+    }
+    #progress-handle {
+      position: absolute;
+      top: -5px;
+      width: 18px;
+      height: 18px;
+      background: #ff4d4d;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      cursor: pointer;
+    }
+    #player-controls {
+      display: flex;
+      gap: 0.4rem;
+    }
+    #player-controls button {
+  background: none;
+  border: none;
+  padding: 0 8px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+    #player-controls button:hover, #player-controls button:active {
+      transform: scale(1.1);
+    }
+    #playPauseBtn {
+      background: white;
+      color: #fff;
+    }
+    #downloadBtn {
+      background: none;
+      color: #000;
+    }
+    #loader {
+      margin: 0.5rem 0;
+      color: #e50914;
+      font-size: 0.9rem;
+    }
+    #error {
+      color: red;
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+      min-height: 1.2rem;
+    }
+    @media (max-width: 360px) {
+      .container, #player {
+        padding: 0 0.5rem;
+      }
+      h1 {
+        font-size: 1.1rem;
+      }
+      input[type="text"], button {
+        font-size: 0.9rem;
+      }
+      .thumb {
+        width: 100px;
+        height: 56px;
+      }
+      .thumb-duration {
+        font-size: 0.6rem;
+      }
+      #player-time {
+        font-size: 0.6rem;
+      }
+       button svg {
+  width: 32px;
+  height: 32px;
+  display: block; /* This removes extra space below the SVG */
+}
+       #player-controls i {
+  font-size: 2rem; /* Makes icon large */
+  color: #000;     /* Makes icon black */
+}
+    
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tellurion music stream</h1>
+    <input type="text" id="searchQuery" placeholder="Search for a song (e.g., despacito)" />
+    <button id="searchBtn">Search</button>
+    <div id="loader" style="display:none;">⏳ Loading…</div>
+    <div id="error"></div>
+    <div id="results"></div>
+  </div>
+  <div id="player">
+    <div id="player-time">0:00 / -0:00</div>
+    <div id="progress-bar">
+      <div id="progress"></div>
+      <div id="progress-handle"></div>
+    </div>
+    <div id="player-controls">
+      <button id="playPauseBtn" disabled><i class="bi bi-play-circle"></i></button>
+      <button id="downloadBtn" disabled><i class="bi bi-download"></i></button>
+    </div>
+  </div>
+
+<script>
+  // Config
+  const SEARCH_API_BASE = 'https://youtube138.p.rapidapi.com/search/';
+  const SEARCH_API_HOST = 'youtube138.p.rapidapi.com';
+  const MP3_API_HOST = 'youtube-mp36.p.rapidapi.com';
+  const API_KEY = '00acf4d619msh0fa1683870a29c1p16eff1jsne3b85e0daf75';
+
+  // DOM elements
+  const searchBtn = document.getElementById('searchBtn');
+  const searchQuery = document.getElementById('searchQuery');
+  const loader = document.getElementById('loader');
+  const errorDiv = document.getElementById('error');
+  const resultsDiv = document.getElementById('results');
+  const playerTime = document.getElementById('player-time');
+  const progressBar = document.getElementById('progress-bar');
+  const progress = document.getElementById('progress');
+  const progressHandle = document.getElementById('progress-handle');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  // Audio player
+  const audio = new Audio();
+  let currentMp3Url = '';
+
+  // Helpers
+  function show(el) { el.style.display = ''; }
+  function hide(el) { el.style.display = 'none'; }
+  function showError(msg) {
+    errorDiv.textContent = msg;
+    show(errorDiv);
+  }
+  function clearError() {
+    errorDiv.textContent = '';
+    hide(errorDiv);
+  }
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  // Fetch search results (top 5) with duration
+  async function fetchSearch() {
+    const query = searchQuery.value.trim();
+    if (!query) {
+      showError('Please enter a search query.');
+      return;
+    }
+
+    searchBtn.disabled = true;
+    resultsDiv.innerHTML = '';
+    show(loader);
+    clearError();
+
+    try {
+      const encodedQuery = encodeURIComponent(query);
+      const url = `${SEARCH_API_BASE}?q=${encodedQuery}&hl=en&gl=US`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-host': SEARCH_API_HOST,
+          'x-rapidapi-key': API_KEY
+        }
+      });
+
+      if (!res.ok) throw new Error(`Search API error: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      console.log('Search data:', data);
+
+      const videos = (data.contents || []).slice(0, 5);
+      if (videos.length === 0) {
+        resultsDiv.innerHTML = '<p>No results found.</p>';
+        return;
+      }
+
+      videos.forEach(item => {
+        if (!item.video) return;
+        const videoId = item.video.videoId;
+        const title = item.video.title || 'Untitled';
+        const thumbnail = item.video.thumbnails?.[0]?.url || '';
+        // Placeholder duration (replace with actual API field if available, e.g., item.video.duration)
+        const duration = item.video.duration || '3:45'; // Example, adjust based on API
+
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        div.innerHTML = `
+          <img class="thumb" src="${thumbnail}" alt="thumbnail" />
+          <span class="thumb-duration">${duration}</span>
+          <div class="title">${title}</div>
+        `;
+        div.addEventListener('click', () => selectSong(videoId, title));
+        resultsDiv.appendChild(div);
+      });
+    } catch (err) {
+      console.error('Search error:', err);
+      showError(`Search failed: ${err.message}`);
+    } finally {
+      searchBtn.disabled = false;
+      hide(loader);
+    }
+  }
+
+  // Select song (update player, no autoplay)
+  async function selectSong(videoId, title) {
+    clearError();
+    show(loader);
+    playPauseBtn.disabled = true;
+    downloadBtn.disabled = true;
+    playerTime.textContent = '0:00 / -0:00';
+    progress.style.width = '0';
+    progressHandle.style.left = '0';
+    audio.pause();
+
+    try {
+      const url = `https://${MP3_API_HOST}/dl?id=${videoId}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-host': MP3_API_HOST,
+          'x-rapidapi-key': API_KEY
+        }
+      });
+
+      if (!res.ok) throw new Error(`MP3 API error: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      console.log('MP3 data:', data);
+
+      currentMp3Url = data.link || '';
+      if (!currentMp3Url) throw new Error('No MP3 link available');
+
+      audio.src = currentMp3Url;
+      audio.currentTime = 0;
+      playerTime.textContent = '0:00 / -0:00'; // Reset time
+      playPauseBtn.innerHTML = '<i class="bi bi-play-circle"></i>';
+      playPauseBtn.disabled = false;
+      downloadBtn.disabled = false;
+      downloadBtn.onclick = () => window.open(currentMp3Url, '_blank');
+    } catch (err) {
+      console.error('MP3 fetch error:', err);
+      showError(`Failed to load song: ${err.message}`);
+      playerTime.textContent = '0:00 / -0:00';
+    } finally {
+      hide(loader);
+    }
+  }
+
+  // Update progress and time
+  function updateProgress() {
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const currentTime = audio.currentTime;
+      const remainingTime = audio.duration - currentTime;
+      playerTime.textContent = `${formatTime(currentTime)} / -${formatTime(remainingTime)}`;
+      const progressPercent = (currentTime / audio.duration) * 100;
+      progress.style.width = `${progressPercent}%`;
+      progressHandle.style.left = `calc(${progressPercent}% - 6px)`;
+    }, { once: false });
+  }
+
+  // Seek functionality
+  progressBar.addEventListener('click', (e) => {
+    if (!audio.duration) return;
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percent = clickX / rect.width;
+    audio.currentTime = percent * audio.duration;
+  });
+
+  // Player controls
+  playPauseBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().catch(err => {
+        console.error('Playback error:', err);
+        showError('Playback failed. Try again.');
+      });
+      playPauseBtn.innerHTML = '<i class="bi bi-pause-circle"></i>';
+      updateProgress();
+    } else {
+      audio.pause();
+      playPauseBtn.innerHTML = '<i class="bi bi-play-circle"></i>';
+    }
+  });
+
+  audio.addEventListener('ended', () => {
+    playPauseBtn.innerHTML = '<i class="bi bi-play-circle"></i>';
+    playerTime.textContent = '0:00 / -0:00';
+    progress.style.width = '0';
+    progressHandle.style.left = '0';
+  });
+
+  // Event listeners
+  searchBtn.addEventListener('click', fetchSearch);
+  searchQuery.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') fetchSearch();
+  });
+</script>
+</body>
+</html>
