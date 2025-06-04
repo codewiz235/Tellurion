@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bursaries - Civil Engineering</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f9;
+            font-size: 3.5vw; /* Scales with screen width */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 5vw;
+            margin: 10px 0;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 5px;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            font-size: 3vw;
+            margin: 10px 0;
+            display: none;
+        }
+        .table-container {
+            overflow-x: auto; /* Horizontal scroll for table on small screens */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on Android */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 3.2vw;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .checkbox-cell {
+            text-align: center;
+            width: 15%; /* Fixed width for checkbox columns */
+        }
+        .name-cell {
+            width: 55%; /* Wider column for bursary names */
+        }
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 5vw;
+            height: 5vw;
+            margin: 0 auto;
+        }
+        @media (max-width: 600px) {
+            body {
+                font-size: 4vw;
+            }
+            h1 {
+                font-size: 6vw;
+            }
+            table {
+                font-size: 3.5vw;
+            }
+            input[type="checkbox"] {
+                width: 6vw;
+                height: 6vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Civil Engineering Bursaries</h1>
+        <div id="errorMessage" class="error-message"></div>
+        <div class="table-container">
+            <table id="bursaryTable">
+                <thead>
+                    <tr>
+                        <th class="name-cell">Bursary Name</th>
+                        <th class="checkbox-cell">Applied ✗</th>
+                        <th class="checkbox-cell">Available ✔</th>
+                        <th class="checkbox-cell">Unavailable ✘</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Bursary rows will be dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPoTOlCi2IHMKXtvDS6vt6BxkHJe2kQaM",
+            authDomain: "busuaries.firebaseapp.com",
+            // Replace with your actual databaseURL from Firebase Console
+            databaseURL: "https://busuaries-default-rtdb.firebaseio.com",
+            projectId: "busuaries",
+            storageBucket: "busuaries.firebasestorage.app",
+            messagingSenderId: "232206610511",
+            appId: "1:232206610511:web:7086b9869610273e8a7a3a",
+            measurementId: "G-EQEHEDM0LJ"
+        };
+
+        // Initialize Firebase
+        let database;
+        try {
+            const app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+        } catch (error) {
+            showError(`Failed to initialize Firebase: ${error.message}`);
+            console.error("Firebase initialization error:", error);
+        }
+
+        const errorMessageDiv = document.getElementById('errorMessage');
+
+        // List of bursaries
+        const bursaries = [
+            "Absa Fellowship/Scholarship Programme",
+            "Access Trust Bursary",
+            "AECOM Bursary",
+            "Alfeco Bursary",
+            "Anglo American Platinum Bursary",
+            "ASLA Bursary",
+            "Grinaker-LTA Bursary",
+            "AWS Skills Development Bursary",
+            "Basil Read Bursary",
+            "Bergrivier Municipality Bursary",
+            "Bigen Bursary",
+            "Bitou Municipality Bursary",
+            "Bombela Bursary",
+            "Buffalo City Metropolitan Municipality Bursary",
+            "Cape Winelands District Municipality Mayoral Bursary",
+            "Capitec Bank Bursary",
+            "Chris Hani District Municipality Bursary",
+            "Civils 2000 Bursary",
+            "Concor Bursary",
+            "CETA Thapelo Madibeng Bursary",
+            "CHS Developments Bursary",
+            "Department of Public Works Bursary",
+            "Department of Transport Bursary",
+            "Department of Water & Sanitation Bursary",
+            "Dr JS Moroka Local Municipality Bursary",
+            "Dr Xolani Mkhwanazi South32 Bursary",
+            "Drakenstein Municipality Bursary",
+            "DSI-CSIR Bursary",
+            "Eastern Cape Department of Transport Bursary",
+            "Education Empowerment and Development Fund (EEDF) Bursary",
+            "Emalahleni Local Municipality Bursary",
+            "eThekwini Municipality Bursary",
+            "Eastern Cape Department of Public Works and Infrastructure Bursary",
+            "Ekurhuleni Metropolitan Municipality Bursary",
+            "Emadlangeni Municipality Bursary",
+            "Engcobo Local Municipality Bursary",
+            "Ephraim Mogale Local Municipality Bursary",
+            "Fluor Bursary",
+            "GAST Bursary",
+            "Gauteng Dept of Infrastructure Development Bursary",
+            "Gauteng Dept of Roads and Transport Bursary",
+            "Gauteng Department of Human Settlements Bursary",
+            "GIBB Bursary",
+            "Golder Bursary",
+            "Group Five Bursary",
+            "Haw & Inglis Bursary",
+            "HHO Bursary",
+            "Hillary Construction Bursary",
+            "IMESA Bursary",
+            "Industrial Development Corporation (IDC) Bursary",
+            "Ingquza Hill Local Municipality Bursary",
+            "ISFAP Bursary",
+            "ISFAP Postgraduate Bursary",
+            "iSimangaliso Wetland Park Bursary",
+            "iX Engineers Bursary",
+            "Johannesburg Water Bursary",
+            "Jones & Wagener Bursary",
+            "J.P. Morgan Bursary",
+            "Kantey & Templer Bursary",
+            "Knight Piésold Bursary",
+            "KwaDukuza Municipality Bursary",
+            "KwaZulu-Natal Department of Transport Bursary",
+            "KwaZulu-Natal Government Bursaries",
+            "Kumba Iron Ore Bursary",
+            "Langeberg Municipality Bursary",
+            "Leomat Construction Bursary",
+            "LGSETA Bursary",
+            "Limpopo Department of Agriculture and Rural Development (LDARD) Bursary",
+            "Limpopo Department of Public Works Bursary",
+            "L’Oréal-UNESCO For Women in Science South Africa Grant",
+            "Magalies Water Bursary",
+            "Makhuduthamaga Local Municipality Bursary",
+            "Masakh’iSizwe (Department of Transport and Public Works) Bursary",
+            "Master Builders Association Western Cape (MBAWC) Bursary",
+            "Mhlathuze Water Bursary",
+            "Mossel Bay Municipality Bursary",
+            "Mpumalanga Provincial Government Bursary",
+            "Municipal Infrastructure Support Agent (MISA) Bursary",
+            "Murray & Roberts Bursary",
+            "Musina Local Municipality Bursary",
+            "N3TC Bursary",
+            "NCP Chlorchem Bursary",
+            "Ndwedwe Local Municipality Bursary",
+            "Nelson Mandela Bay Municipality Bursary",
+            "NESP Scholarship",
+            "Nkangala District Municipality Bursary",
+            "North West Provincial Government Bursaries",
+            "NUMSA Bursary",
+            "Oasis Bursary",
+            "Okhahlamba Local Municipality Bursary",
+            "Overberg District Municipality Bursary",
+            "Power Construction Bursary",
+            "PRASA Bursary",
+            "PRDW Bursary",
+            "Prince Albert Municipality Bursary",
+            "Rand Water Bursary",
+            "Ratlou Local Municipality Bursary",
+            "Richards Bay Industrial Development Zone (RBIDZ) Bursary",
+            "Royal HaskoningDHV Bursary",
+            "Ruwacon Bursary",
+            "SAICE SPEBS Bursary",
+            "Saldanha Bay Municipality Bursary",
+            "SANRAL Bursary",
+            "Santam Bursary",
+            "Sappi Bursary",
+            "SARS Bursary",
+            "Sasol Bursary",
+            "SEDISA Trust Bursary",
+            "SEIFSA Bursary",
+            "Silulumanzi Bursary",
+            "SIOC Community Development Trust (SIOC-cdt) Bursary",
+            "Siza Water Bursary",
+            "South32 HMM Bursary",
+            "South African Forestry Company Limited (SAFCOL) Bursary",
+            "South African Road Federation (SARF) Bursary",
+            "Stefanutti Stocks Bursary",
+            "Stellenbosch Municipality Bursary",
+            "Steve Tshwete Local Municipality Bursary",
+            "TCTA (Trans-Caledon Tunnel Authority) Bursary",
+            "Thabo Mofutsanyane District Municipality Bursary",
+            "The Msunduzi Municipality Bursary",
+            "Tiber Construction Bursary",
+            "TOTAL Bursary",
+            "Transnet Bursary",
+            "Ubuhlebezwe Municipality Bursary",
+            "Umgeni Water Bursary",
+            "UWP Consulting Bursary",
+            "V3 Consulting Engineers Bursary",
+            "VGI Consulting Bursary",
+            "Vhembe District Municipality Mayoral Bursary",
+            "WBHO Bursary",
+            "West Coast District Municipality Bursary",
+            "WK Construction Bursary",
+            "Worley Bursary",
+            "WSP Bursary",
+            "Zutari Bursary South Africa"
+        ];
+
+        // Function to generate a safe key for Firebase
+        function getSafeKey(name) {
+            return name.replace(/[.#$[\]]/g, '_').replace(/\s+/g, '_');
+        }
+
+        // Display error message
+        function showError(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.style.display = 'block';
+            setTimeout(() => {
+                errorMessageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Populate table with bursaries and checkboxes
+        const tbody = document.querySelector('#bursaryTable tbody');
+        bursaries.forEach(bursary => {
+            const row = document.createElement('tr');
+            const safeKey = getSafeKey(bursary);
+            row.innerHTML = `
+                <td class="name-cell">${bursary}</td>
+                <td class="checkbox-cell"><input type="checkbox" id="applied_${safeKey}" data-bursary="${safeKey}" data-type="applied"></td>
+                <td class="checkbox-cell"><input type="checkbox" id="available_${safeKey}" data-bursary="${safeKey}" data-type="available"></td>
+                <td class="checkbox-cell"><input type="checkbox" id="unavailable_${safeKey}" data-bursary="${safeKey}" data-type="unavailable"></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Ensure Available and Unavailable are mutually exclusive
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const bursaryKey = e.target.dataset.bursary;
+                const type = e.target.dataset.type;
+                const isChecked = e.target.checked;
+
+                // Handle mutual exclusivity
+                if (type === 'available' && isChecked) {
+                    const unavailableCheckbox = document.getElementById(`unavailable_${bursaryKey}`);
+                    if (unavailableCheckbox.checked) {
+                        unavailableCheckbox.checked = false;
+                        set(ref(database, `bursaries/${bursaryKey}/unavailable`), false)
+                            .catch(error => {
+                                showError(`Error updating unavailable for ${bursaryKey}: ${error.message}`);
+                                console.error(`Error updating unavailable for ${bursaryKey}:`, error);
+                            });
+                    }
+                } else if (type === 'unavailable' && isChecked) {
+                    const availableCheckbox = document.getElementById(`available_${bursaryKey}`);
+                    if (availableCheckbox.checked) {
+                        availableCheckbox.checked = false;
+                        set(ref(database, `bursaries/${bursaryKey}/available`), false)
+                            .catch(error => {
+                                showError(`Error updating available for ${bursaryKey}: ${error.message}`);
+                                console.error(`Error updating available for ${bursaryKey}:`, error);
+                            });
+                    }
+                }
+
+                // Update Firebase
+                const refPath = `bursaries/${bursaryKey}/${type}`;
+                set(ref(database, refPath), isChecked)
+                    .then(() => {
+                        console.log(`Updated ${type} for ${bursaryKey} to ${isChecked}`);
+                    })
+                    .catch(error => {
+                        showError(`Error updating ${type} for ${bursaryKey}: ${error.message}`);
+                        console.error(`Error updating ${type} for ${bursaryKey}:`, error);
+                    });
+            });
+        });
+
+        // Fetch initial checkbox states once on page load
+        if (database) {
+            bursaries.forEach(bursary => {
+                const safeKey = getSafeKey(bursary);
+                const appliedRef = ref(database, `bursaries/${safeKey}/applied`);
+                const availableRef = ref(database, `bursaries/${safeKey}/available`);
+                const unavailableRef = ref(database, `bursaries/${safeKey}/unavailable`);
+
+                // Fetch applied status
+                get(appliedRef).then(snapshot => {
+                    const checkbox = document.getElementById(`applied_${safeKey}`);
+                    if (checkbox && snapshot.exists()) {
+                        checkbox.checked = snapshot.val() === true;
+                    }
+                }).catch(error => {
+                    showError(`Failed to fetch applied status for ${bursary}: ${error.message}`);
+                    console.error(`Error fetching applied for ${safeKey}:`, error);
+                });
+
+                // Fetch available status
+                get(availableRef).then(snapshot => {
+                    const checkbox = document.getElementById(`available_${safeKey}`);
+                    if (checkbox && snapshot.exists()) {
+                        checkbox.checked = snapshot.val() === true;
+                    }
+                }).catch(error => {
+                    showError(`Failed to fetch available status for ${bursary}: ${error.message}`);
+                    console.error(`Error fetching available for ${safeKey}:`, error);
+                });
+
+                // Fetch unavailable status
+                get(unavailableRef).then(snapshot => {
+                    const checkbox = document.getElementById(`unavailable_${safeKey}`);
+                    if (checkbox && snapshot.exists()) {
+                        checkbox.checked = snapshot.val() === true;
+                    }
+                }).catch(error => {
+                    showError(`Failed to fetch unavailable status for ${bursary}: ${error.message}`);
+                    console.error(`Error fetching unavailable for ${safeKey}:`, error);
+                });
+            });
+        } else {
+            showError("Firebase database not initialized. Please check the databaseURL.");
+        }
+    </script>
+</body>
+</html>
